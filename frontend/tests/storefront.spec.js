@@ -111,20 +111,20 @@ test("logo, mobile navigation, search, filters, and sorting", async ({
       .getByRole("link", { name: "Menu", exact: true })
       .click();
   } else await page.getByRole("link", { name: "Explore our menu" }).click();
-  await expect(page.locator(".product-card")).toHaveCount(8);
+  await expect(page.locator(".product-card")).toHaveCount(24);
   await page.getByRole("button", { name: "Matcha", exact: true }).click();
-  await expect(page.locator(".product-card")).toHaveCount(1);
+  await expect(page.locator(".product-card")).toHaveCount(4);
   await page.getByRole("button", { name: "All", exact: true }).click();
   await page
     .getByRole("textbox", { name: "Search products" })
-    .fill("croissant");
+    .fill("butter croissant");
   await expect(page.locator(".product-card")).toHaveCount(1);
   await page.getByRole("button", { name: "Clear search" }).click();
   await page
     .getByLabel("Sort products", { exact: true })
     .selectOption("price-high");
   await expect(page.locator(".product-title").first()).toHaveText(
-    "Basque Cheesecake",
+    "Dirty Matcha",
   );
   expect(
     await page.evaluate(
