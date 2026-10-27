@@ -3552,3 +3552,111 @@ footer .newsletter-wrapper .email-form-error {
     font-size: 9px;
   }
 }
+
+.email-receipt {
+  display: flex;
+  gap: 12px;
+  text-align: left;
+  border: 1px solid #e4d6c2;
+  background: #f8f3e9;
+  border-radius: 9px;
+  padding: 17px;
+  margin: 20px 0;
+  color: #9b7c50;
+}
+.receipt-icon {
+  width: 33px;
+  height: 33px;
+  border: 1px solid #dfcdae;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex: none;
+  background: #fffdf9;
+}
+.email-receipt strong {
+  font-size: 11px;
+  font-weight: 500;
+  color: #806244;
+  display: block;
+}
+.email-receipt p {
+  font-size: 10px;
+  line-height: 1.8;
+  margin: 6px 0 0;
+  color: #a38b6e;
+  overflow-wrap: anywhere;
+}
+.email-receipt button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 9px;
+  color: #8c6942;
+  border-bottom: 1px solid #bda37e;
+  padding: 4px 0;
+  margin-top: 9px;
+}
+.email-receipt .receipt-error {
+  color: #a86350;
+}
+.receipt-sent {
+  background: #f0f2e8;
+  border-color: #d9ddc9;
+}
+.receipt-sent .receipt-icon {
+  border-color: #d5dcbc;
+  color: #7a8556;
+}
+.account-order .email-receipt {
+  margin: 16px 0 0;
+  padding: 14px;
+}
+.checkout-receipt-note {
+  display: flex;
+  align-items: start;
+  gap: 11px;
+  background: #f5eddf;
+  border: 1px solid #e6d8c0;
+  border-radius: 7px;
+  padding: 14px;
+  margin-bottom: 25px;
+  color: #9b7c50;
+}
+.checkout-receipt-note > svg {
+  flex: none;
+  margin-top: 2px;
+}
+.checkout-receipt-note p {
+  font-size: 10px;
+  line-height: 1.8;
+  margin: 0;
+  color: #9d8260;
+  overflow-wrap: anywhere;
+}
+.checkout-receipt-note strong {
+  font-weight: 500;
+  color: #7c5d3c;
+}
+@media (max-width: 600px) {
+  .email-receipt {
+    padding: 15px;
+    gap: 10px;
+  }
+  .email-receipt strong {
+    font-size: 10px;
+  }
+  .email-receipt p {
+    font-size: 9px;
+  }
+  .receipt-icon {
+    width: 29px;
+    height: 29px;
+  }
+  .checkout-receipt-note {
+    padding: 13px;
+  }
+  .checkout-receipt-note p {
+    font-size: 9px;
+  }
+}

@@ -1,4 +1,5 @@
 import express from "express";
+import { waitUntil } from "@vercel/functions";
 import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
@@ -15,6 +16,7 @@ import {
   originGuard,
   publicUser,
 } from "./middleware/security.js";
+import { safelyDeliverReceipt } from "./services/receipts.js";
 import { priceForSize } from "./pricing.js";
 import { createOrder, HttpError } from "./orders.js";
 const uuid = z.string().uuid();
@@ -110,15 +112,24 @@ export const checkoutSchema = z
   .strict();
 const productSelect =
   "SELECT p.*,c.name AS category_name FROM products p JOIN categories c ON c.id=p.category_id";
-const orderSelect = `SELECT o.*,COALESCE((SELECT json_agg(i ORDER BY i.id) FROM order_items i WHERE i.order_id=o.id),'[]'::json) AS items FROM orders o`;
+const orderSelect = `SELECT o.*,r.status AS receipt_status,r.recipient_email AS receipt_email,r.updated_at AS receipt_updated_at,COALESCE((SELECT json_agg(i ORDER BY i.id) FROM order_items i WHERE i.order_id=o.id),'[]'::json) AS items FROM orders o LEFT JOIN order_receipts r ON r.order_id=o.id`;
 export function createApp({
   db,
   secret,
   clientUrl = "http://localhost:5173",
   databaseConfigured = true,
   vercel = process.env.VERCEL === "1",
+  sendReceipt = safelyDeliverReceipt,
 }) {
   const app = express();
+  async function attemptReceipt(orderId) {
+    try {
+      return await sendReceipt(db, orderId);
+    } catch {
+      console.error("Receipt delivery was deferred.");
+      return { status: "pending" };
+    }
+  }
   app.disable("x-powered-by");
   const keyGenerator = (request) => clientRateLimitKey(request, vercel);
   app.use(helmet());
@@ -514,8 +525,48 @@ export function createApp({
   });
   app.post("/api/orders", authenticate, async (req, res) => {
     const data = checkoutSchema.parse(req.body);
-    res.status(201).json(await createOrder(db, req.user.id, data));
+    const order = await createOrder(db, req.user.id, data);
+    const delivery = attemptReceipt(order.id);
+    if (vercel) waitUntil(delivery);
+    // Node keeps running locally; Vercel's waitUntil retains the background job.
+    res.status(201).json({ ...order, receipt_status: "pending" });
   });
+  const receiptLimit = rateLimit({
+    keyGenerator,
+    windowMs: 60 * 60 * 1000,
+    limit: 6,
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+    message: { error: "Please wait before requesting another email receipt." },
+  });
+  app.post(
+    "/api/orders/:id/receipt",
+    authenticate,
+    receiptLimit,
+    async (req, res) => {
+      const id = uuid.parse(req.params.id);
+      z.object({})
+        .strict()
+        .parse(req.body ?? {});
+      const order = (
+        await db.query("SELECT id FROM orders WHERE id=$1 AND user_id=$2", [
+          id,
+          req.user.id,
+        ])
+      ).rows[0];
+      if (!order) throw new HttpError(404, "Order not found.");
+      const receipt = await attemptReceipt(id);
+      res.status(["sent", "sending"].includes(receipt.status) ? 200 : 503).json(
+        receipt.status === "sent" || receipt.status === "sending"
+          ? receipt
+          : {
+              ...receipt,
+              error:
+                "Your order is saved, but email delivery is currently unavailable. Please try again later.",
+            },
+      );
+    },
+  );
   app.get("/api/orders/my-orders", authenticate, async (req, res) =>
     res.json(
       (

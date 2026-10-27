@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
+  Mail,
   ShoppingBag,
   Minus,
   Plus,
@@ -10,6 +11,7 @@ import {
 } from "lucide-react";
 import { useShop } from "../context/ShopContext";
 import { api, message } from "../services/api";
+import EmailReceipt from "../components/EmailReceipt";
 import { money } from "../services/catalog";
 export function Cart() {
   const { cart, quantity, user } = useShop();
@@ -146,6 +148,13 @@ export function Checkout() {
       <h1>Make it yours.</h1>
       <div className="cart-layout">
         <form className="panel" onSubmit={submit}>
+          <div className="checkout-receipt-note">
+            <Mail size={17} />
+            <p>
+              Your receipt will be emailed to <strong>{user.email}</strong>{" "}
+              after your order is placed.
+            </p>
+          </div>
           <label>
             Customer name
             <input
@@ -252,6 +261,7 @@ export function Confirmation() {
             ))}
             <strong>{money(order.total_amount)}</strong>
           </div>
+          <EmailReceipt order={order} poll />
           <Link to="/account" className="button">
             View your orders
           </Link>

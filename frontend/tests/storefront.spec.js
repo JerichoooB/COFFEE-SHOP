@@ -494,3 +494,51 @@ test("contact form submits to Formspree and newsletter failures stay visible", a
   await page.getByRole("button", { name: "Send newsletter request" }).click();
   await expect(page.getByRole("alert")).toContainText("Too many messages");
 });
+
+test("order receipt status supports a safe retry without placing another order", async ({
+  page,
+}) => {
+  await mockShop(page, { signedIn: true });
+  const order = {
+    id: "11111111-1111-4111-8111-111111111111",
+    customer_name: "Coffee Friend",
+    total_amount: "205.00",
+    order_type: "pickup",
+    status: "pending",
+    receipt_status: "pending",
+    receipt_email: "friend@example.com",
+    items: [
+      {
+        id: "item",
+        product_name: "Latte",
+        quantity: 1,
+        unit_price: 205,
+        size: "Large",
+      },
+    ],
+  };
+  await page.route(
+    "**/api/orders/11111111-1111-4111-8111-111111111111",
+    (route) => route.fulfill({ json: order }),
+  );
+  let retries = 0;
+  await page.route(
+    "**/api/orders/11111111-1111-4111-8111-111111111111/receipt",
+    (route) => {
+      retries++;
+      expect(route.request().method()).toBe("POST");
+      return route.fulfill({ json: { status: "sent" } });
+    },
+  );
+  await page.goto("/orders/" + order.id);
+  await expect(page.getByText("Your email receipt is pending")).toBeVisible();
+  await page.getByRole("button", { name: "Try sending receipt" }).click();
+  await expect(
+    page.getByText("Your email receipt is on its way"),
+  ).toBeVisible();
+  await expect(page.getByText(/Sent to friend@example.com/)).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Try sending receipt" }),
+  ).toHaveCount(0);
+  expect(retries).toBe(1);
+});

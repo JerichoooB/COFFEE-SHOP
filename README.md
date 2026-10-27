@@ -138,3 +138,18 @@ My Account has an overview, order history, editable name/email, and password set
 ## Email delivery
 
 The contact form and newsletter request field submit directly to the public Formspree endpoint. Configure recipient email, verified delivery addresses, spam protection, and allowed domains in the Formspree dashboard. Add `ririscoffeeshop.vercel.app` if you enable domain restrictions. Forms display sending, success, timeout, and delivery errors and include a honeypot. No SMTP credentials or Formspree API key belong in the frontend. Testing uses intercepted requests; no test emails were sent to the owner.
+
+## Automatic order email receipts
+
+Receipts use **Gmail SMTP** from the backend with Nodemailer. In Vercel’s Production environment, add:
+
+- `GMAIL_USER`: the Gmail address that sends receipts (for example, your café account)
+- `GMAIL_APP_PASSWORD`: a Google app password, never the regular Google account password
+
+Enable 2-Step Verification on the sender’s Google account, then generate an app password at https://myaccount.google.com/apppasswords. Some managed accounts or Google security policies do not allow app passwords. Save the values securely in Vercel and redeploy. Do not paste them in chat, source code, or `VITE_` variables. The backend can also read these names from its ignored `.env` for local validation. Gmail sending limits and anti-abuse rules apply; high-volume production mail should use a dedicated transactional service. Formspree remains responsible for contact/newsletter requests.
+
+The backend connects to `smtp.gmail.com:465` with verified implicit TLS (TLS 1.2+) and bounded connection/socket timeouts. A successful checkout creates an `order_receipts` outbox row in the same transaction as the order and items. After commit, receipt sending runs in the background (using Vercel’s `waitUntil`), so checkout responds without waiting for Gmail. The confirmation screen briefly polls the saved delivery state. The backend sends a receipt to the authenticated customer’s account email, saved when ordering. The browser cannot select another recipient or receipt total. Receipts include the order reference, items, drink sizes, total, order type, notes, and an explicit **Pay at Counter / payment not collected online** label.
+
+Delivery failures never roll back a completed order. Confirmation/history show the receipt state and offer a rate-limited, owner-only retry at `POST /api/orders/:id/receipt`, using the original recipient and order snapshot. Already accepted receipts are not resent. A database lease prevents concurrent sends, and a stable SMTP Message-ID identifies the receipt. SMTP cannot guarantee deduplication after an ambiguous timeout; a manual retry could produce another copy. `sent` records Gmail’s acceptance, not inbox delivery. Automatic background retry scheduling is not configured. After credentials are added, pending receipts can be retried from order history. The migration does not automatically email historical orders.
+
+Tests inject a mail transport and do not send customer mail. Real email delivery remains unverified until Gmail credentials are configured.

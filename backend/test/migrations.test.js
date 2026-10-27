@@ -33,6 +33,7 @@ test("migrations use one pooled-connection-safe transaction and skip applied fil
     "001_initial.sql",
     "002_drink_sizes.sql",
     "003_account_sessions.sql",
+    "004_order_receipts.sql",
   ]);
   assert.deepEqual(t.calls.slice(0, 2), [
     "BEGIN",

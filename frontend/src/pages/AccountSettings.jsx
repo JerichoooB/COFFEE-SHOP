@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useShop } from "../context/ShopContext";
 import { api, message, parseUser, parseList } from "../services/api";
+import EmailReceipt from "../components/EmailReceipt";
 import { money } from "../services/catalog";
 
 const sections = [
@@ -307,6 +308,7 @@ function OrderList({ orders, error, loading, retry }) {
               View order <ArrowRight size={14} />
             </Link>
           </div>
+          <EmailReceipt order={o} />
         </article>
       ))}
     </div>

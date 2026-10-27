@@ -57,6 +57,10 @@ export async function createOrder(db, userId, data) {
     await client.query("UPDATE carts SET updated_at=now() WHERE id=$1", [
       cart.id,
     ]);
+    await client.query(
+      "INSERT INTO order_receipts(order_id,recipient_email) SELECT $1,email FROM users WHERE id=$2",
+      [order.id, userId],
+    );
     await client.query("COMMIT");
     return order;
   } catch (e) {
