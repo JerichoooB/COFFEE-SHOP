@@ -27,10 +27,17 @@ export function validateDatabaseURL(value) {
     );
   return value;
 }
-// Preserve all TLS parameters supplied by Neon. No rejectUnauthorized overrides.
+// Keep today's certificate/hostname verification explicit across future pg upgrades.
+// Preserve every other Neon parameter, including channel_binding and certificates.
+export function poolConnectionString(value) {
+  const url = new URL(validateDatabaseURL(value));
+  url.searchParams.set("sslmode", "verify-full");
+  return url.toString();
+}
+// No rejectUnauthorized overrides or disabled verification.
 export const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL
-    ? validateDatabaseURL(process.env.DATABASE_URL)
+    ? poolConnectionString(process.env.DATABASE_URL)
     : undefined,
   max: 10,
   connectionTimeoutMillis: 7000,

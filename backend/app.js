@@ -4,6 +4,7 @@ import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import rateLimit from "express-rate-limit";
 import bcrypt from "bcrypt";
+import { clientRateLimitKey } from "./middleware/rateLimit.js";
 import { z } from "zod";
 import {
   auth,
@@ -114,9 +115,11 @@ export function createApp({
   secret,
   clientUrl = "http://localhost:5173",
   databaseConfigured = true,
+  vercel = process.env.VERCEL === "1",
 }) {
   const app = express();
   app.disable("x-powered-by");
+  const keyGenerator = (request) => clientRateLimitKey(request, vercel);
   app.use(helmet());
   app.use(cors({ origin: clientUrl, credentials: true }));
   app.use(express.json({ limit: "32kb" }));
@@ -125,6 +128,7 @@ export function createApp({
   app.use(
     "/api",
     rateLimit({
+      keyGenerator,
       windowMs: 60000,
       limit: 300,
       standardHeaders: "draft-8",
@@ -135,6 +139,7 @@ export function createApp({
   const authenticate = auth(db, secret),
     protectedAdmin = [authenticate, admin];
   const limitedAuth = rateLimit({
+    keyGenerator,
     windowMs: 15 * 60000,
     limit: 20,
     standardHeaders: "draft-8",

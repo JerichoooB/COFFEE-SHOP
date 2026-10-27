@@ -93,7 +93,7 @@ The automated backend suite tests health failures/success with injected database
 
 Live database verification remains required after supplying credentials: migrate, seed, require a 200 `connected` health response, register/login a disposable test account, add a product, change quantities, place an order, confirm the server total and cleared cart, inspect history, and verify customer/admin permissions and dashboard data. Test against a development Neon branch. No local PostgreSQL substitute should be used.
 
-For production, use HTTPS, a persistent JWT secret, a managed Node process, restrictive network settings, backups, and the built `frontend/dist` with SPA route fallback. Verify your deployment’s trusted proxy settings before configuring forwarded client IPs for rate limiting. The Vite development server is for development.
+For production, use HTTPS, a persistent JWT secret, a managed Node process, restrictive network settings, backups, and the built `frontend/dist` with SPA route fallback. Rate limiting uses Vercel’s proxy-written `x-real-ip` header only when `VERCEL=1`, and the direct socket address elsewhere. Arbitrary `Forwarded`/`X-Forwarded-For` headers are not used as client identities. IPv6 addresses are grouped into /56 subnets. Limits use per-instance memory; Vercel instances do not share counters. The Vite development server is for development.
 
 ## Deploy the full application to Vercel
 
@@ -126,3 +126,5 @@ npm run test:e2e
 ```
 
 For an installed Chromium binary, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium`. Browser tests cover desktop/mobile layouts, menu filtering/sorting, drink sizes, cart/checkout, signup limits, and admin price editing with an explicitly mocked API. They do not establish live Neon readiness.
+
+The PostgreSQL pool explicitly uses `sslmode=verify-full` (with all other connection parameters preserved), retaining the certificate and hostname verification that pg currently applies to `require`. You do not need to change your Neon connection string to silence pg’s SSL compatibility warning.
