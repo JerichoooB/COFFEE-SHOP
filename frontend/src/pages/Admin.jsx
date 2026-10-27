@@ -266,7 +266,9 @@ export default function Admin() {
                 Image URL
                 <input
                   name="image_url"
-                  type="url"
+                  type="text"
+                  inputMode="url"
+                  placeholder="https://… or /products/…"
                   required
                   defaultValue={editing.image_url}
                 />
@@ -349,7 +351,7 @@ export default function Admin() {
                 <img
                   onError={(e) => {
                     e.currentTarget.onerror = null;
-                    e.currentTarget.src = "/coffee-fallback.svg";
+                    e.currentTarget.src = "/product-placeholder.svg";
                   }}
                   src={p.image_url}
                   alt=""

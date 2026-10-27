@@ -15,7 +15,7 @@ export default function ProductCard({ product, onDetails }) {
         <img
           onError={(e) => {
             e.currentTarget.onerror = null;
-            e.currentTarget.src = "/coffee-fallback.svg";
+            e.currentTarget.src = "/product-placeholder.svg";
           }}
           src={product.image_url}
           alt={product.name}
@@ -134,7 +134,7 @@ export function ProductDetail({ product, onClose }) {
         <img
           onError={(e) => {
             e.currentTarget.onerror = null;
-            e.currentTarget.src = "/coffee-fallback.svg";
+            e.currentTarget.src = "/product-placeholder.svg";
           }}
           src={product.image_url}
           alt={product.name}

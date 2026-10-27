@@ -542,3 +542,41 @@ test("order receipt status supports a safe retry without placing another order",
   ).toHaveCount(0);
   expect(retries).toBe(1);
 });
+
+test("all 24 matched product images load and photo credits are available", async ({
+  page,
+}) => {
+  await mockShop(page);
+  await page.goto("/menu");
+  await expect(page.locator(".product-card")).toHaveCount(24);
+  await page
+    .locator(".product-card img")
+    .evaluateAll((images) =>
+      images.forEach((image) => (image.loading = "eager")),
+    );
+  await expect
+    .poll(() =>
+      page
+        .locator(".product-card img")
+        .evaluateAll(
+          (images) =>
+            images.filter((image) => image.complete && image.naturalWidth > 0)
+              .length,
+        ),
+    )
+    .toBe(24);
+  const paths = await page
+    .locator(".product-card img")
+    .evaluateAll((images) =>
+      images.map((image) => new URL(image.src).pathname),
+    );
+  expect(new Set(paths).size).toBe(24);
+  expect(paths.every((path) => path.startsWith("/products/"))).toBe(true);
+  await page.getByRole("link", { name: "Photo credits", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Photo credits", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Strawberry Matcha product illustration", { exact: true }),
+  ).toBeVisible();
+});

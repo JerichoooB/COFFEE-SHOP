@@ -43,9 +43,14 @@ const productSchema = z
       ),
     category_id: uuid,
     image_url: z
-      .url()
-      .refine((s) => s.startsWith("https://"), "Use an HTTPS image URL.")
-      .max(2000),
+      .string()
+      .max(2000)
+      .refine(
+        (value) =>
+          /^\/products\/[a-z0-9-]+\.(jpg|png|webp)$/.test(value) ||
+          (value.startsWith("https://") && z.url().safeParse(value).success),
+        "Use an HTTPS image URL or a bundled /products/ image.",
+      ),
     is_available: z.boolean(),
     is_featured: z.boolean(),
     size_options: z

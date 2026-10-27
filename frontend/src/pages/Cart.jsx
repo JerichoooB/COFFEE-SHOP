@@ -42,7 +42,7 @@ export function Cart() {
                 <img
                   onError={(e) => {
                     e.currentTarget.onerror = null;
-                    e.currentTarget.src = "/coffee-fallback.svg";
+                    e.currentTarget.src = "/product-placeholder.svg";
                   }}
                   src={i.image_url}
                   alt={i.name}

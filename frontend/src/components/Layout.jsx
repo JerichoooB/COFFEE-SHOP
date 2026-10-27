@@ -109,7 +109,10 @@ export default function Layout() {
         </div>
         <div className="shell footer-bottom">
           <span>
-            © {new Date().getFullYear()} Brew Haven. Crafted with care.
+            © {new Date().getFullYear()} Brew Haven. Crafted with care.{" "}
+            <a className="photo-credits-link" href="/photo-credits.html">
+              Photo credits
+            </a>
           </span>
           <span>
             Slow down. Sip something good. <Instagram size={15} />

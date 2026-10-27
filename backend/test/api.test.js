@@ -402,3 +402,48 @@ test("adding different drink sizes uses distinct cart identities and validates s
     .send({ product_id: user.id, quantity: 1, size: "Regular" })
     .expect(409);
 });
+
+test("admin product editing accepts bundled photos and rejects unsafe local paths", async () => {
+  const writes = [];
+  const productApp = createApp({
+    secret,
+    db: {
+      query: async (sql, values) => {
+        if (sql.startsWith("SELECT id,full_name"))
+          return { rows: [{ ...user, role: "admin" }] };
+        writes.push(values);
+        return { rowCount: 1, rows: [{ id: user.id }] };
+      },
+    },
+  });
+  const product = {
+    name: "Latte",
+    description: "Silky espresso and milk.",
+    price: 165,
+    category_id: user.id,
+    image_url: "/products/signature-latte.jpg",
+    is_available: true,
+    is_featured: false,
+    size_options: [],
+  };
+  await request(productApp)
+    .put(`/api/products/${user.id}`)
+    .set("Origin", "http://localhost:5173")
+    .set("Cookie", cookie())
+    .send(product)
+    .expect(200);
+  assert.equal(writes[0][4], product.image_url);
+  for (const image_url of [
+    "/products/../secret.jpg",
+    "/other/file.jpg",
+    "javascript:alert(1)",
+    "http://example.com/photo.jpg",
+  ])
+    await request(productApp)
+      .put(`/api/products/${user.id}`)
+      .set("Origin", "http://localhost:5173")
+      .set("Cookie", cookie())
+      .send({ ...product, image_url })
+      .expect(400);
+  assert.equal(writes.length, 1);
+});

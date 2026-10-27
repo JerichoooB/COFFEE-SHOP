@@ -1,0 +1,242 @@
+[
+  {
+    "product": "Almond Croissant",
+    "image": "/products/almond-croissant.jpg",
+    "title": "Croissant Almond.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Croissant_Almond.jpg",
+    "author": "Bajinra",
+    "license": "CC0",
+    "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "note": "Wikimedia thumbnail; displayed with a cover crop."
+  },
+  {
+    "product": "Basque Cheesecake",
+    "image": "/products/basque-cheesecake.jpg",
+    "title": "Basque-style cheesecake in Pepito, Tokyo.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Basque-style_cheesecake_in_Pepito,_Tokyo.jpg",
+    "author": "さえぼー",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "note": "Wikimedia thumbnail; displayed with a cover crop."
+  },
+  {
+    "product": "Butter Croissant",
+    "image": "/products/butter-croissant.jpg",
+    "title": "Croissant-newspaper-and-tea.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Croissant-newspaper-and-tea.jpg",
+    "author": "Petr Kratochvil",
+    "license": "CC0",
+    "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "note": "Wikimedia thumbnail; displayed with a cover crop."
+  },
+  {
+    "product": "Café Mocha",
+    "image": "/products/cafe-mocha.jpg",
+    "title": "Caffè Mocha by Phil.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Caff%C3%A8_Mocha_by_Phil.jpg",
+    "author": "No machine-readable author provided. Evilphil77 assumed (based on copyright claims).",
+    "license": "CC BY 3.0",
+    "license_url": "https://creativecommons.org/licenses/by/3.0",
+    "note": "Wikimedia thumbnail; displayed with a cover crop."
+  },
+  {
+    "product": "Caramel Cold Brew",
+    "image": "/products/caramel-cold-brew.jpg",
+    "source": "https://unsplash.com",
+    "source_image": "https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=700&q=85",
+    "author": "See Unsplash source",
+    "license": "Unsplash License",
+    "license_url": "https://unsplash.com/license",
+    "note": "Stock image; displayed with a cover crop."
+  },
+  {
+    "product": "Ceremonial Matcha",
+    "image": "/products/ceremonial-matcha.jpg",
+    "title": "Matcha tea latte with rosetta latte art.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Matcha_tea_latte_with_rosetta_latte_art.jpg",
+    "author": "Irvan Ary Maulana",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "note": "Wikimedia thumbnail; displayed with a cover crop."
+  },
+  {
+    "product": "Chocolate Fudge Cake",
+    "image": "/products/chocolate-fudge-cake.jpg",
+    "source": "https://unsplash.com",
+    "source_image": "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=700&q=85",
+    "author": "See Unsplash source",
+    "license": "Unsplash License",
+    "license_url": "https://unsplash.com/license",
+    "note": "Stock image; displayed with a cover crop."
+  },
+  {
+    "product": "Cinnamon Roll",
+    "image": "/products/cinnamon-roll.jpg",
+    "title": "Cinnamon-Roll-US-Bakery.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Cinnamon-Roll-US-Bakery.jpg",
+    "author": "Evan-Amos",
+    "license": "Public domain",
+    "license_url": "",
+    "note": "Wikimedia thumbnail; displayed with a cover crop."
+  },
+  {
+    "product": "Classic Americano",
+    "image": "/products/classic-americano.jpg",
+    "source": "https://unsplash.com",
+    "source_image": "https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?auto=format&fit=crop&w=700&q=85",
+    "author": "See Unsplash source",
+    "license": "Unsplash License",
+    "license_url": "https://unsplash.com/license",
+    "note": "Stock image; displayed with a cover crop."
+  },
+  {
+    "product": "Classic Cappuccino",
+    "image": "/products/classic-cappuccino.jpg",
+    "title": "Classic Cappuccino.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Classic_Cappuccino.jpg",
+    "author": "Jazzbobrown",
+    "license": "Public domain",
+    "license_url": "",
+    "note": "Wikimedia thumbnail; displayed with a cover crop."
+  },
+  {
+    "product": "Classic Tiramisu",
+    "image": "/products/classic-tiramisu.jpg",
+    "title": "Dolce Tiramisù monoporzione.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Dolce_Tiramis%C3%B9_monoporzione.jpg",
+    "author": "Anna.Massini",
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0",
+    "note": "Wikimedia thumbnail; displayed with a cover crop."
+  },
+  {
+    "product": "Dark Chocolate",
+    "image": "/products/dark-chocolate.jpg",
+    "title": "Hot Chocolate (Unsplash).jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Hot_Chocolate_(Unsplash).jpg",
+    "author": "Patrycja Polechonska ppolecho",
+    "license": "CC0",
+    "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "note": "Wikimedia thumbnail; displayed with a cover crop."
+  },
+  {
+    "product": "Dirty Matcha",
+    "image": "/products/dirty-matcha.jpg",
+    "title": "Dirty Matcha.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Dirty_Matcha.jpg",
+    "author": "Norchandyyy",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "note": "Wikimedia thumbnail; displayed with a cover crop."
+  },
+  {
+    "product": "Fudgy Brownie",
+    "image": "/products/fudgy-brownie.jpg",
+    "title": "Chocolate-brownie-hachatw.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Chocolate-brownie-hachatw.jpg",
+    "author": "JefferySAC",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "note": "Wikimedia thumbnail; displayed with a cover crop."
+  },
+  {
+    "product": "Honey Lemon Tea",
+    "image": "/products/honey-lemon-tea.png",
+    "title": "Honey Lemon Tea product illustration",
+    "source": "",
+    "author": "Generated for Brew Haven with OpenAI image generation",
+    "license": "AI-generated illustration",
+    "license_url": "",
+    "note": "Illustrative menu image; not a photograph of an actual Brew Haven serving."
+  },
+  {
+    "product": "Iced Americano",
+    "image": "/products/iced-americano.jpg",
+    "title": "Iced americano.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Iced_americano.jpg",
+    "author": "Debbie Tingzon",
+    "license": "CC BY 2.0",
+    "license_url": "https://creativecommons.org/licenses/by/2.0",
+    "note": "Wikimedia thumbnail; displayed with a cover crop."
+  },
+  {
+    "product": "Iced Matcha Latte",
+    "image": "/products/iced-matcha-latte.jpg",
+    "title": "Matcha Latte in Kadıköy.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Matcha_Latte_in_Kad%C4%B1k%C3%B6y.jpg",
+    "author": "İsnaaa",
+    "license": "CC0",
+    "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "note": "Wikimedia thumbnail; displayed with a cover crop."
+  },
+  {
+    "product": "Iced Spanish Latte",
+    "image": "/products/iced-spanish-latte.jpg",
+    "source": "https://unsplash.com",
+    "source_image": "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=700&q=85",
+    "author": "See Unsplash source",
+    "license": "Unsplash License",
+    "license_url": "https://unsplash.com/license",
+    "note": "Stock image; displayed with a cover crop."
+  },
+  {
+    "product": "Iced Vanilla Latte",
+    "image": "/products/iced-vanilla-latte.png",
+    "title": "Iced Vanilla Latte product illustration",
+    "source": "",
+    "author": "Generated for Brew Haven with OpenAI image generation",
+    "license": "AI-generated illustration",
+    "license_url": "",
+    "note": "Illustrative menu image; not a photograph of an actual Brew Haven serving."
+  },
+  {
+    "product": "Pain au Chocolat",
+    "image": "/products/pain-au-chocolat.jpg",
+    "title": "Pain au chocolat Luc Viatour.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Pain_au_chocolat_Luc_Viatour.jpg",
+    "author": "Luc Viatour",
+    "license": "CC BY-SA 3.0",
+    "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+    "note": "Wikimedia thumbnail; displayed with a cover crop."
+  },
+  {
+    "product": "Signature Latte",
+    "image": "/products/signature-latte.jpg",
+    "title": "Latte art \"Rosetta\".jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Latte_art_%22Rosetta%22.jpg",
+    "author": "Maxstein5",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "note": "Wikimedia thumbnail; displayed with a cover crop."
+  },
+  {
+    "product": "Strawberry Matcha",
+    "image": "/products/strawberry-matcha.png",
+    "title": "Strawberry Matcha product illustration",
+    "source": "",
+    "author": "Generated for Brew Haven with OpenAI image generation",
+    "license": "AI-generated illustration",
+    "license_url": "",
+    "note": "Illustrative menu image; not a photograph of an actual Brew Haven serving."
+  },
+  {
+    "product": "Strawberry Milk",
+    "image": "/products/strawberry-milk.jpg",
+    "title": "Strawberry milk shake (cropped).jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Strawberry_milk_shake_(cropped).jpg",
+    "author": "Renee Comet (Photographer)",
+    "license": "Public domain",
+    "license_url": "",
+    "note": "Wikimedia thumbnail; displayed with a cover crop."
+  },
+  {
+    "product": "Vanilla Cream Milk",
+    "image": "/products/vanilla-cream-milk.jpg",
+    "source": "https://unsplash.com",
+    "source_image": "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=700&q=85",
+    "author": "See Unsplash source",
+    "license": "Unsplash License",
+    "license_url": "https://unsplash.com/license",
+    "note": "Stock image; displayed with a cover crop."
+  }
+]

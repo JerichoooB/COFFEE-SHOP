@@ -15,7 +15,7 @@ export const sampleProducts = [
     "Silky espresso, steamed milk, a little moment of bliss.",
     165,
     "Hot Coffee",
-    "photo-1570968915860-54d5c301fa9f",
+    "/products/signature-latte.jpg",
     true,
   ],
   [
@@ -24,7 +24,7 @@ export const sampleProducts = [
     "Slow-steeped coffee with a golden caramel finish.",
     185,
     "Iced Coffee",
-    "photo-1517701604599-bb29b565090c",
+    "/products/caramel-cold-brew.jpg",
     true,
   ],
   [
@@ -33,7 +33,7 @@ export const sampleProducts = [
     "Earthy Japanese matcha meets creamy, velvety milk.",
     190,
     "Matcha",
-    "photo-1515823064-d6e0c04616a7",
+    "/products/ceremonial-matcha.jpg",
     true,
   ],
   [
@@ -42,7 +42,7 @@ export const sampleProducts = [
     "Golden, flaky layers. Baked for your coffee break.",
     110,
     "Pastries",
-    "photo-1555507036-ab1f4038808a",
+    "/products/butter-croissant.jpg",
     true,
   ],
   [
@@ -51,7 +51,7 @@ export const sampleProducts = [
     "A beautifully simple cup with a bold, clean finish.",
     120,
     "Hot Coffee",
-    "photo-1510707577719-ae7c14805e3a",
+    "/products/classic-americano.jpg",
     false,
   ],
   [
@@ -60,7 +60,7 @@ export const sampleProducts = [
     "Rich cocoa and warm milk, made for slow sipping.",
     170,
     "Non-Coffee",
-    "photo-1542990253-0b8be5db0ed1",
+    "/products/dark-chocolate.jpg",
     false,
   ],
   [
@@ -69,7 +69,7 @@ export const sampleProducts = [
     "A caramelized top and a wonderfully creamy heart.",
     210,
     "Desserts",
-    "photo-1533134242443-d4fd215305ad",
+    "/products/basque-cheesecake.jpg",
     false,
   ],
   [
@@ -78,7 +78,7 @@ export const sampleProducts = [
     "Espresso, milk, and just the right touch of sweetness.",
     180,
     "Iced Coffee",
-    "photo-1461023058943-07fcbe16d735",
+    "/products/iced-spanish-latte.jpg",
     false,
   ],
   [
@@ -87,16 +87,16 @@ export const sampleProducts = [
     "A balanced espresso with steamed milk and a cloud of fine foam.",
     150,
     "Hot Coffee",
-    "photo-1534778101976-62847782c213",
+    "/products/classic-cappuccino.jpg",
     false,
   ],
   [
     "b1000002-0000-4000-8000-000000000002",
-    "Caf\u00e9 Mocha",
+    "Café Mocha",
     "Our espresso meets dark chocolate and silky steamed milk.",
     180,
     "Hot Coffee",
-    "photo-1570968915860-54d5c301fa9f",
+    "/products/cafe-mocha.jpg",
     false,
   ],
   [
@@ -105,7 +105,7 @@ export const sampleProducts = [
     "Chilled espresso and creamy milk, softened with vanilla.",
     190,
     "Iced Coffee",
-    "photo-1461023058943-07fcbe16d735",
+    "/products/iced-vanilla-latte.png",
     false,
   ],
   [
@@ -114,7 +114,7 @@ export const sampleProducts = [
     "Bright espresso poured over ice for a crisp, refreshing cup.",
     140,
     "Iced Coffee",
-    "photo-1517701604599-bb29b565090c",
+    "/products/iced-americano.jpg",
     false,
   ],
   [
@@ -123,7 +123,7 @@ export const sampleProducts = [
     "Creamy milk swirled with sweet strawberry for a fruity treat.",
     160,
     "Non-Coffee",
-    "photo-1550583724-b2692b85b150",
+    "/products/strawberry-milk.jpg",
     false,
   ],
   [
@@ -132,7 +132,7 @@ export const sampleProducts = [
     "A comforting blend of milk and fragrant vanilla.",
     150,
     "Non-Coffee",
-    "photo-1550583724-b2692b85b150",
+    "/products/vanilla-cream-milk.jpg",
     false,
   ],
   [
@@ -141,7 +141,7 @@ export const sampleProducts = [
     "A soothing tea with honey sweetness and a bright lemon finish.",
     135,
     "Non-Coffee",
-    "photo-1544787219-7f47ccb76574",
+    "/products/honey-lemon-tea.png",
     false,
   ],
   [
@@ -150,7 +150,7 @@ export const sampleProducts = [
     "Earthy matcha layered with milk and a sweet strawberry swirl.",
     215,
     "Matcha",
-    "photo-1515823064-d6e0c04616a7",
+    "/products/strawberry-matcha.png",
     false,
   ],
   [
@@ -159,7 +159,7 @@ export const sampleProducts = [
     "Japanese matcha and milk with a bold espresso twist.",
     225,
     "Matcha",
-    "photo-1515823064-d6e0c04616a7",
+    "/products/dirty-matcha.jpg",
     false,
   ],
   [
@@ -168,7 +168,7 @@ export const sampleProducts = [
     "Smooth matcha and chilled milk, made for an easy afternoon.",
     200,
     "Matcha",
-    "photo-1515823064-d6e0c04616a7",
+    "/products/iced-matcha-latte.jpg",
     false,
   ],
   [
@@ -177,7 +177,7 @@ export const sampleProducts = [
     "Buttery layers filled with almond cream and a delicate crunch.",
     145,
     "Pastries",
-    "photo-1555507036-ab1f4038808a",
+    "/products/almond-croissant.jpg",
     false,
   ],
   [
@@ -186,7 +186,7 @@ export const sampleProducts = [
     "A flaky pastry wrapped around a rich chocolate center.",
     135,
     "Pastries",
-    "photo-1555507036-ab1f4038808a",
+    "/products/pain-au-chocolat.jpg",
     false,
   ],
   [
@@ -195,7 +195,7 @@ export const sampleProducts = [
     "Soft spirals of cinnamon sugar finished with a sweet glaze.",
     125,
     "Pastries",
-    "photo-1509440159596-0249088772ff",
+    "/products/cinnamon-roll.jpg",
     false,
   ],
   [
@@ -204,7 +204,7 @@ export const sampleProducts = [
     "A rich chocolate slice with a soft crumb and smooth fudge.",
     195,
     "Desserts",
-    "photo-1578985545062-69928b1d9587",
+    "/products/chocolate-fudge-cake.jpg",
     false,
   ],
   [
@@ -213,7 +213,7 @@ export const sampleProducts = [
     "Coffee-soaked layers and delicate mascarpone cream.",
     220,
     "Desserts",
-    "photo-1571877227200-a0d98ea607e9",
+    "/products/classic-tiramisu.jpg",
     false,
   ],
   [
@@ -222,7 +222,7 @@ export const sampleProducts = [
     "Deep chocolate flavor with a rich, satisfyingly fudgy center.",
     140,
     "Desserts",
-    "photo-1606313564200-e75d5e30476c",
+    "/products/fudgy-brownie.jpg",
     false,
   ],
 ].map(([id, name, description, price, category_name, photo, is_featured]) => ({
@@ -231,7 +231,7 @@ export const sampleProducts = [
   description,
   price,
   category_name,
-  image_url: `https://images.unsplash.com/${photo}?auto=format&fit=crop&w=700&q=80`,
+  image_url: photo,
   is_featured,
   is_available: true,
 }));
