@@ -10,6 +10,7 @@ import {
   Instagram,
 } from "lucide-react";
 import Brand from "./Brand";
+import EmailForm from "./EmailForm";
 import { useShop } from "../context/ShopContext";
 export default function Layout() {
   const { user, cart } = useShop(),
@@ -102,21 +103,8 @@ export default function Layout() {
           </div>
           <div>
             <h3>A little goodness in your inbox</h3>
-            <p>Our newsletter is brewing. Check back soon.</p>
-            <form onSubmit={(e) => e.preventDefault()} className="newsletter">
-              <label className="sr-only" htmlFor="newsletter">
-                Newsletter email address
-              </label>
-              <input
-                id="newsletter"
-                type="email"
-                placeholder="Your email address"
-                disabled
-              />
-              <button disabled aria-label="Newsletter coming soon">
-                <ArrowUpRight size={20} />
-              </button>
-            </form>
+            <p>Leave your email to hear about what’s brewing.</p>
+            <EmailForm newsletter />
           </div>
         </div>
         <div className="shell footer-bottom">

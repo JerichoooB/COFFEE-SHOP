@@ -13,6 +13,7 @@ import {
   cookieName,
   cookieOptions,
   originGuard,
+  publicUser,
 } from "./middleware/security.js";
 import { priceForSize } from "./pricing.js";
 import { createOrder, HttpError } from "./orders.js";
@@ -210,7 +211,91 @@ export function createApp({
     });
     res.status(204).end();
   });
-  app.get("/api/auth/me", authenticate, (req, res) => res.json(req.user));
+  app.get("/api/auth/me", authenticate, (req, res) =>
+    res.json(publicUser(req.user)),
+  );
+  app.put("/api/auth/me", authenticate, limitedAuth, async (req, res) => {
+    const data = z
+      .object({
+        full_name: z.string().trim().min(1).max(100),
+        email,
+        current_password: z.string().min(1).max(72).optional(),
+      })
+      .strict()
+      .parse(req.body);
+    const current = (
+      await db.query("SELECT password_hash,email FROM users WHERE id=$1", [
+        req.user.id,
+      ])
+    ).rows[0];
+    if (!current) throw new HttpError(401, "Please sign in again.");
+    const changingEmail = data.email !== current.email;
+    if (
+      changingEmail &&
+      (!data.current_password ||
+        !(await bcrypt.compare(data.current_password, current.password_hash)))
+    )
+      throw new HttpError(
+        400,
+        "Enter your correct current password to change your email.",
+      );
+    const result = await db.query(
+      "UPDATE users SET full_name=$1,email=$2,session_version=session_version+$3 WHERE id=$4 AND password_hash=$5 AND email=$6 RETURNING id,full_name,email,role,session_version",
+      [
+        data.full_name,
+        data.email,
+        changingEmail ? 1 : 0,
+        req.user.id,
+        current.password_hash,
+        current.email,
+      ],
+    );
+    if (!result.rowCount)
+      throw new HttpError(
+        409,
+        "Your account changed during this update. Refresh and try again.",
+      );
+    issueSession(res, result.rows[0], secret);
+    res.json(publicUser(result.rows[0]));
+  });
+  app.put("/api/auth/password", authenticate, limitedAuth, async (req, res) => {
+    const data = z
+      .object({
+        current_password: z.string().min(1).max(72),
+        new_password: password,
+      })
+      .strict()
+      .parse(req.body);
+    const current = (
+      await db.query("SELECT password_hash FROM users WHERE id=$1", [
+        req.user.id,
+      ])
+    ).rows[0];
+    if (
+      !current ||
+      !(await bcrypt.compare(data.current_password, current.password_hash))
+    )
+      throw new HttpError(400, "Your current password is incorrect.");
+    if (data.current_password === data.new_password)
+      throw new HttpError(
+        400,
+        "Choose a new password different from your current password.",
+      );
+    const hash = await bcrypt.hash(data.new_password, 12);
+    const result = await db.query(
+      "UPDATE users SET password_hash=$1,session_version=session_version+1 WHERE id=$2 AND password_hash=$3 RETURNING id,full_name,email,role,session_version",
+      [hash, req.user.id, current.password_hash],
+    );
+    if (!result.rowCount)
+      throw new HttpError(
+        409,
+        "Your password changed during this update. Please sign in again.",
+      );
+    issueSession(res, result.rows[0], secret);
+    res.json({
+      message: "Password updated. Your other sessions have been signed out.",
+    });
+  });
   app.get("/api/products", async (req, res) => {
     const query = z
       .object({

@@ -63,7 +63,7 @@ Without `DATABASE_URL`, the frontend displays an explicitly labeled **sample cat
 - Transactional orders using current database prices, integer-cent calculations, immutable item name/price snapshots, and serialized cart changes
 - HttpOnly SameSite session cookies, secure cookies in production, JWT verification, bcrypt, Zod validation, parameterized SQL, rate limits, CORS, origin checks, Helmet, and backend role/ownership enforcement
 
-The newsletter is visibly disabled until an email subscription provider is implemented. Contact information and opening hours are not invented. Configure the optional `VITE_CAFE_*` variables in `frontend/.env` and rebuild. The gallery, menu photos, use Unsplash and need browser network access to images.unsplash.com. A bundled coffee illustration replaces blocked images. Inter and Playfair Display fonts are bundled locally through Fontsource. No specific visual reference image was included beyond the written Minimal Elegant brief.
+Contact enquiries and newsletter requests are sent to the configured Formspree endpoint (`https://formspree.io/f/xvkkkley` by default). `VITE_FORMSPREE_ENDPOINT` can override this public URL. Formspree delivers requests to the email configured in its dashboard; the newsletter field collects requests and does not automatically enroll visitors in an external mailing platform. Contact information and opening hours are not invented. Configure the optional `VITE_CAFE_*` variables in `frontend/.env` and rebuild. The gallery, menu photos, use Unsplash and need browser network access to images.unsplash.com. A bundled coffee illustration replaces blocked images. Inter and Playfair Display fonts are bundled locally through Fontsource. No specific visual reference image was included beyond the written Minimal Elegant brief.
 
 ## API
 
@@ -130,3 +130,11 @@ For an installed Chromium binary, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/
 The PostgreSQL pool explicitly uses `sslmode=verify-full` (with all other connection parameters preserved), retaining the certificate and hostname verification that pg currently applies to `require`. You do not need to change your Neon connection string to silence pg’s SSL compatibility warning.
 
 Vercel explicitly rewrites `/api/:path*` to the single `api/index.js` function before the frontend SPA fallback. This is required for nested routes such as `/api/auth/login` and `/api/orders/my-orders`. API responses are checked before entering React state; malformed responses show an error instead of turning the account page blank.
+
+## Account settings
+
+My Account has an overview, order history, editable name/email, and password settings. Changing an email requires the current password. Changing a password requires the current password and a new 8–15-character password. Both security changes invalidate other sessions while keeping the current device signed in. Migration `003_account_sessions.sql` adds session versioning and runs during Vercel deployment. Admin permission cannot be changed through profile updates.
+
+## Email delivery
+
+The contact form and newsletter request field submit directly to the public Formspree endpoint. Configure recipient email, verified delivery addresses, spam protection, and allowed domains in the Formspree dashboard. Add `ririscoffeeshop.vercel.app` if you enable domain restrictions. Forms display sending, success, timeout, and delivery errors and include a honeypot. No SMTP credentials or Formspree API key belong in the frontend. Testing uses intercepted requests; no test emails were sent to the owner.

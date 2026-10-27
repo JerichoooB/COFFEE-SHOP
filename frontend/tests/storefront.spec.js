@@ -349,3 +349,148 @@ test("malformed profile and order responses show errors without blanking the pag
   );
   expect(errors).toEqual([]);
 });
+
+test("account details save and email changes require password confirmation", async ({
+  page,
+}) => {
+  const writes = await mockShop(page, { signedIn: true });
+  await page.route("**/api/orders/my-orders", (route) =>
+    route.fulfill({ json: [] }),
+  );
+  await page.route("**/api/auth/me", (route) => {
+    if (route.request().method() === "PUT") {
+      const body = route.request().postDataJSON();
+      writes.push({ path: "/api/auth/me", body });
+      return route.fulfill({
+        json: {
+          id: "test-user",
+          full_name: body.full_name,
+          email: body.email,
+          role: "customer",
+        },
+      });
+    }
+    return route.fulfill({
+      json: {
+        id: "test-user",
+        full_name: "Coffee Friend",
+        email: "friend@example.com",
+        role: "customer",
+      },
+    });
+  });
+  await page.goto("/account");
+  await page
+    .getByRole("button", { name: "Personal information", exact: true })
+    .click();
+  await page.getByLabel("Full name", { exact: true }).fill("Coffee Pal");
+  await page.getByRole("button", { name: "Save changes" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Hello, Coffee." }),
+  ).toBeVisible();
+  await expect(page.getByText("Your details are up to date.")).toBeVisible();
+  await page
+    .getByLabel("Email address", { exact: true })
+    .fill("new@example.com");
+  await expect(
+    page.getByLabel("Current password", { exact: true }),
+  ).toBeVisible();
+  await page
+    .getByLabel("Current password", { exact: true })
+    .fill("currentpass123");
+  await page.getByRole("button", { name: "Save changes" }).click();
+  await expect(page.locator(".account-identity")).toContainText(
+    "new@example.com",
+  );
+  expect(
+    writes.filter((w) => w.path === "/api/auth/me").at(-1).body
+      .current_password,
+  ).toBe("currentpass123");
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+});
+
+test("password settings validate confirmation before sending and show success", async ({
+  page,
+}) => {
+  await mockShop(page, { signedIn: true });
+  await page.route("**/api/orders/my-orders", (route) =>
+    route.fulfill({ json: [] }),
+  );
+  let calls = 0;
+  await page.route("**/api/auth/password", (route) => {
+    calls++;
+    return route.fulfill({ json: { message: "Password updated." } });
+  });
+  await page.goto("/account?tab=security");
+  await page
+    .getByLabel("Current password", { exact: true })
+    .fill("currentpass123");
+  await page.getByLabel("New password", { exact: true }).fill("newpass123");
+  await page
+    .getByLabel("Confirm new password", { exact: true })
+    .fill("different123");
+  await page.getByRole("button", { name: "Update password" }).click();
+  await expect(page.getByRole("alert")).toContainText("do not match");
+  expect(calls).toBe(0);
+  await page
+    .getByLabel("Confirm new password", { exact: true })
+    .fill("newpass123");
+  await page.getByRole("button", { name: "Update password" }).click();
+  await expect(page.getByText("Password changed successfully.")).toBeVisible();
+  expect(calls).toBe(1);
+  await expect(
+    page.getByLabel("Current password", { exact: true }),
+  ).toBeEmpty();
+});
+
+test("contact form submits to Formspree and newsletter failures stay visible", async ({
+  page,
+}) => {
+  await mockShop(page);
+  const submissions = [];
+  await page.route("https://formspree.io/f/xvkkkley", (route) => {
+    submissions.push(route.request().postDataJSON());
+    return route.fulfill({
+      json: { ok: true },
+      headers: { "access-control-allow-origin": "*" },
+    });
+  });
+  await page.goto("/");
+  const contact = page.getByRole("form", { name: "Contact Brew Haven" });
+  await contact.getByLabel("Your name", { exact: true }).fill("Coffee Friend");
+  await contact
+    .getByLabel("Your email", { exact: true })
+    .fill("friend@example.com");
+  await contact
+    .getByLabel("Your message", { exact: true })
+    .fill("I would love to know more about your coffee.");
+  await contact.getByRole("button", { name: "Send message" }).click();
+  await expect(
+    page.getByText("Your message has been sent. Thanks for reaching out!"),
+  ).toBeVisible();
+  expect(submissions[0].form_type).toBe("Contact enquiry");
+  await page
+    .getByLabel("Newsletter email address", { exact: true })
+    .fill("friend@example.com");
+  await page.getByRole("button", { name: "Send newsletter request" }).click();
+  await expect(
+    page.getByText("Thanks! Your newsletter request has been sent."),
+  ).toBeVisible();
+  expect(submissions[1].form_type).toBe("Newsletter request");
+  await page.route("https://formspree.io/f/xvkkkley", (route) =>
+    route.fulfill({
+      status: 429,
+      json: { error: "Rate limit" },
+      headers: { "access-control-allow-origin": "*" },
+    }),
+  );
+  await page
+    .getByLabel("Newsletter email address", { exact: true })
+    .fill("friend@example.com");
+  await page.getByRole("button", { name: "Send newsletter request" }).click();
+  await expect(page.getByRole("alert")).toContainText("Too many messages");
+});

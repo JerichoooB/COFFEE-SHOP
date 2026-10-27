@@ -10,7 +10,7 @@ export const cookieOptions = {
 export function issueSession(res, user, secret) {
   res.cookie(
     cookieName,
-    jwt.sign({ sub: user.id }, secret, {
+    jwt.sign({ sub: user.id, version: user.session_version ?? 0 }, secret, {
       expiresIn: "7d",
       issuer: "brew-haven",
       audience: "brew-haven-web",
@@ -37,11 +37,17 @@ export function auth(db, secret) {
           .json({ error: "Your session has expired. Please sign in again." });
       }
       const r = await db.query(
-        "SELECT id,full_name,email,role FROM users WHERE id=$1",
+        "SELECT id,full_name,email,role,session_version FROM users WHERE id=$1",
         [payload.sub],
       );
       if (!r.rows[0])
         return res.status(401).json({ error: "Please sign in again." });
+      if ((payload.version ?? 0) !== (r.rows[0].session_version ?? 0))
+        return res
+          .status(401)
+          .json({
+            error: "Your account security changed. Please sign in again.",
+          });
       req.user = r.rows[0];
       next();
     } catch (e) {
@@ -60,5 +66,14 @@ export function originGuard(origin) {
     if (req.get("origin") !== origin)
       return res.status(403).json({ error: "Request origin is not allowed." });
     next();
+  };
+}
+
+export function publicUser(user) {
+  return {
+    id: user.id,
+    full_name: user.full_name,
+    email: user.email,
+    role: user.role,
   };
 }

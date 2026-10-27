@@ -32,6 +32,7 @@ test("migrations use one pooled-connection-safe transaction and skip applied fil
   assert.deepEqual(await migrate(t.pool), [
     "001_initial.sql",
     "002_drink_sizes.sql",
+    "003_account_sessions.sql",
   ]);
   assert.deepEqual(t.calls.slice(0, 2), [
     "BEGIN",

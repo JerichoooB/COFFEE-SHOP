@@ -1,4 +1,5 @@
 import { useState } from "react";
+import EmailForm from "../components/EmailForm";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -271,6 +272,21 @@ export default function Home() {
             </div>
             <span className="map-note">LOCATION DETAILS COMING SOON</span>
           </div>
+        </div>
+        <div className="shell contact-email-section">
+          <div className="contact-letter">
+            <Mail size={30} strokeWidth={1.2} />
+            <span>
+              A little hello.
+              <br />A lovely beginning.
+            </span>
+            <p>
+              Because good coffee
+              <br />
+              brings people together.
+            </p>
+          </div>
+          <EmailForm />
         </div>
       </section>
       {detail && (
