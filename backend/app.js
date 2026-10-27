@@ -13,36 +13,78 @@ import {
   cookieOptions,
   originGuard,
 } from "./middleware/security.js";
+import { priceForSize } from "./pricing.js";
 import { createOrder, HttpError } from "./orders.js";
 const uuid = z.string().uuid();
 const email = z.string().trim().toLowerCase().email().max(254);
 const password = z
   .string()
-  .min(10)
-  .max(72)
+  .min(8, "Password must be at least 8 characters.")
+  .max(15, "Password must be at most 15 characters.")
   .refine(
     (s) => Buffer.byteLength(s, "utf8") <= 72,
     "Password must be at most 72 bytes.",
   );
-const productSchema = z.object({
-  name: z.string().trim().min(1).max(120),
-  description: z.string().trim().max(1000),
-  price: z
-    .number()
-    .positive()
-    .max(100000)
-    .refine(
-      (n) => Math.abs(n * 100 - Math.round(n * 100)) < 1e-7,
-      "Use at most two decimal places.",
-    ),
-  category_id: uuid,
-  image_url: z
-    .url()
-    .refine((s) => s.startsWith("https://"), "Use an HTTPS image URL.")
-    .max(2000),
-  is_available: z.boolean(),
-  is_featured: z.boolean(),
-});
+const productSchema = z
+  .object({
+    name: z.string().trim().min(1).max(120),
+    description: z.string().trim().max(1000),
+    price: z
+      .number()
+      .positive()
+      .max(100000)
+      .refine(
+        (n) => Math.abs(n * 100 - Math.round(n * 100)) < 1e-7,
+        "Use at most two decimal places.",
+      ),
+    category_id: uuid,
+    image_url: z
+      .url()
+      .refine((s) => s.startsWith("https://"), "Use an HTTPS image URL.")
+      .max(2000),
+    is_available: z.boolean(),
+    is_featured: z.boolean(),
+    size_options: z
+      .array(
+        z.object({
+          name: z.enum(["Small", "Medium", "Large"]),
+          price: z
+            .number()
+            .positive()
+            .max(100000)
+            .refine(
+              (n) => Math.abs(n * 100 - Math.round(n * 100)) < 1e-7,
+              "Use at most two decimal places.",
+            ),
+        }),
+      )
+      .default([]),
+  })
+  .superRefine((p, ctx) => {
+    if (!p.size_options.length) return;
+    if (
+      p.size_options.length !== 3 ||
+      p.size_options.map((o) => o.name).join(",") !== "Small,Medium,Large"
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["size_options"],
+        message: "Provide Small, Medium, and Large prices in that order.",
+      });
+      return;
+    }
+    if (
+      p.size_options[0].price !== p.price ||
+      p.size_options[1].price < p.price ||
+      p.size_options[2].price < p.size_options[1].price
+    )
+      ctx.addIssue({
+        code: "custom",
+        path: ["size_options"],
+        message:
+          "Small must match the base price; prices must increase or stay equal for larger sizes.",
+      });
+  });
 const categorySchema = z.object({
   name: z.string().trim().min(1).max(80),
   slug: z
@@ -113,12 +155,10 @@ export function createApp({
   });
   app.use("/api", (req, res, next) => {
     if (!databaseConfigured)
-      return res
-        .status(503)
-        .json({
-          error:
-            "The café database is not connected yet. Please try again later.",
-        });
+      return res.status(503).json({
+        error:
+          "The café database is not connected yet. Please try again later.",
+      });
     next();
   });
   app.post("/api/auth/register", limitedAuth, async (req, res) => {
@@ -205,8 +245,17 @@ export function createApp({
   app.post("/api/products", ...protectedAdmin, async (req, res) => {
     const p = productSchema.parse(req.body);
     const r = await db.query(
-      "INSERT INTO products(name,description,price,category_id,image_url,is_available,is_featured) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING *",
-      Object.values(p),
+      "INSERT INTO products(name,description,price,category_id,image_url,is_available,is_featured,size_options) VALUES($1,$2,$3,$4,$5,$6,$7,$8::jsonb) RETURNING *",
+      [
+        p.name,
+        p.description,
+        p.price,
+        p.category_id,
+        p.image_url,
+        p.is_available,
+        p.is_featured,
+        JSON.stringify(p.size_options),
+      ],
     );
     res.status(201).json(r.rows[0]);
   });
@@ -214,8 +263,18 @@ export function createApp({
     const id = uuid.parse(req.params.id),
       p = productSchema.parse(req.body);
     const r = await db.query(
-      "UPDATE products SET name=$1,description=$2,price=$3,category_id=$4,image_url=$5,is_available=$6,is_featured=$7 WHERE id=$8 RETURNING *",
-      [...Object.values(p), id],
+      "UPDATE products SET name=$1,description=$2,price=$3,category_id=$4,image_url=$5,is_available=$6,is_featured=$7,size_options=$8::jsonb WHERE id=$9 RETURNING *",
+      [
+        p.name,
+        p.description,
+        p.price,
+        p.category_id,
+        p.image_url,
+        p.is_available,
+        p.is_featured,
+        JSON.stringify(p.size_options),
+        id,
+      ],
     );
     if (!r.rowCount) throw new HttpError(404, "Product not found.");
     res.json(r.rows[0]);
@@ -259,16 +318,21 @@ export function createApp({
     if (!r.rowCount) throw new HttpError(404, "Category not found.");
     res.status(204).end();
   });
-  app.get("/api/cart", authenticate, async (req, res) =>
+  app.get("/api/cart", authenticate, async (req, res) => {
+    const result = await db.query(
+      "SELECT ci.id,ci.product_id,ci.quantity,ci.size,p.name,p.price,p.size_options,p.image_url,p.is_available FROM cart_items ci JOIN carts c ON c.id=ci.cart_id JOIN products p ON p.id=ci.product_id WHERE c.user_id=$1 ORDER BY ci.id",
+      [req.user.id],
+    );
     res.json(
-      (
-        await db.query(
-          "SELECT ci.id,ci.product_id,ci.quantity,p.name,p.price,p.image_url,p.is_available FROM cart_items ci JOIN carts c ON c.id=ci.cart_id JOIN products p ON p.id=ci.product_id WHERE c.user_id=$1 ORDER BY ci.id",
-          [req.user.id],
-        )
-      ).rows,
-    ),
-  );
+      result.rows.map((item) => {
+        try {
+          return { ...item, price: priceForSize(item, item.size) };
+        } catch {
+          return { ...item, price: null, is_available: false };
+        }
+      }),
+    );
+  });
   async function mutateCart(req, operation) {
     const client = await db.connect();
     try {
@@ -296,21 +360,29 @@ export function createApp({
   }
   app.post("/api/cart/items", authenticate, async (req, res) => {
     const p = z
-      .object({ product_id: uuid, quantity: z.number().int().min(1).max(20) })
+      .object({
+        product_id: uuid,
+        quantity: z.number().int().min(1).max(20),
+        size: z
+          .enum(["Regular", "Small", "Medium", "Large"])
+          .default("Regular"),
+      })
+      .strict()
       .parse(req.body);
     await mutateCart(req, async (c, id) => {
       const product = (
         await c.query(
-          "SELECT id,is_available FROM products WHERE id=$1 FOR SHARE",
+          "SELECT id,is_available,price,size_options FROM products WHERE id=$1 FOR SHARE",
           [p.product_id],
         )
       ).rows[0];
       if (!product || !product.is_available)
         throw new HttpError(409, "This product is currently unavailable.");
+      priceForSize(product, p.size);
       const existing = (
         await c.query(
-          "SELECT quantity FROM cart_items WHERE cart_id=$1 AND product_id=$2",
-          [id, p.product_id],
+          "SELECT quantity FROM cart_items WHERE cart_id=$1 AND product_id=$2 AND size=$3",
+          [id, p.product_id, p.size],
         )
       ).rows[0];
       if ((existing?.quantity || 0) + p.quantity > 20)
@@ -319,8 +391,8 @@ export function createApp({
           "A maximum of 20 of each product can be ordered.",
         );
       await c.query(
-        "INSERT INTO cart_items(cart_id,product_id,quantity) VALUES($1,$2,$3) ON CONFLICT(cart_id,product_id) DO UPDATE SET quantity=cart_items.quantity+EXCLUDED.quantity",
-        [id, p.product_id, p.quantity],
+        "INSERT INTO cart_items(cart_id,product_id,quantity,size) VALUES($1,$2,$3,$4) ON CONFLICT(cart_id,product_id,size) DO UPDATE SET quantity=cart_items.quantity+EXCLUDED.quantity",
+        [id, p.product_id, p.quantity, p.size],
       );
     });
     res.status(201).json({ message: "Added to cart." });
@@ -446,13 +518,11 @@ export function createApp({
   app.use((req, res) => res.status(404).json({ error: "Endpoint not found." }));
   app.use((err, req, res, next) => {
     if (err instanceof z.ZodError)
-      return res
-        .status(400)
-        .json({
-          error: err.issues
-            .map((i) => `${i.path.join(".") || "Request"}: ${i.message}`)
-            .join("; "),
-        });
+      return res.status(400).json({
+        error: err.issues
+          .map((i) => `${i.path.join(".") || "Request"}: ${i.message}`)
+          .join("; "),
+      });
     if (err.status && err.status < 500)
       return res.status(err.status).json({ error: err.message });
     if (err.code === "23505")
@@ -460,19 +530,15 @@ export function createApp({
         .status(409)
         .json({ error: "That email, name, or slug is already in use." });
     if (err.code === "23503")
-      return res
-        .status(409)
-        .json({
-          error: "This item is in use or its related item no longer exists.",
-        });
+      return res.status(409).json({
+        error: "This item is in use or its related item no longer exists.",
+      });
     if (err.type === "entity.parse.failed")
       return res.status(400).json({ error: "Invalid JSON request." });
     console.error("API request failed:", err.code || err.name);
-    res
-      .status(503)
-      .json({
-        error: "The café service is temporarily unavailable. Please try again.",
-      });
+    res.status(503).json({
+      error: "The café service is temporarily unavailable. Please try again.",
+    });
   });
   return app;
 }

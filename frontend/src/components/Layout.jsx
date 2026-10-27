@@ -9,6 +9,7 @@ import {
   ArrowUpRight,
   Instagram,
 } from "lucide-react";
+import Brand from "./Brand";
 import { useShop } from "../context/ShopContext";
 export default function Layout() {
   const { user, cart } = useShop(),
@@ -22,10 +23,7 @@ export default function Layout() {
       <header>
         <div className="nav shell">
           <Link to="/" className="brand" aria-label="Brew Haven home">
-            <Coffee size={29} strokeWidth={1.3} />
-            <span>
-              brew haven<small>COFFEE & GOOD COMPANY</small>
-            </span>
+            <Brand />
           </Link>
           <nav
             className={open ? "nav-links open" : "nav-links"}
@@ -89,10 +87,7 @@ export default function Layout() {
         <div className="shell footer-top">
           <div>
             <Link className="brand" to="/">
-              <Coffee size={30} />
-              <span>
-                brew haven<small>COFFEE & GOOD COMPANY</small>
-              </span>
+              <Brand />
             </Link>
             <p>
               A good cup. A warm welcome.

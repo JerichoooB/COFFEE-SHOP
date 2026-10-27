@@ -97,3 +97,20 @@ export const money = (value) =>
     currency: "PHP",
     maximumFractionDigits: 2,
   }).format(Number(value));
+
+export function sizeOptions(product) {
+  return product.size_options || [];
+}
+for (const product of sampleProducts) {
+  product.size_options = [
+    "Hot Coffee",
+    "Iced Coffee",
+    "Non-Coffee",
+    "Matcha",
+  ].includes(product.category_name)
+    ? ["Small", "Medium", "Large"].map((name, index) => ({
+        name,
+        price: product.price + index * 20,
+      }))
+    : [];
+}

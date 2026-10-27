@@ -1,9 +1,10 @@
-import { useEffect, useRef } from "react";
-import { Plus } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Plus, Coffee, Check, ArrowUpRight } from "lucide-react";
 import { useShop } from "../context/ShopContext";
-import { money } from "../services/catalog";
+import { money, sizeOptions } from "../services/catalog";
 export default function ProductCard({ product, onDetails }) {
   const { add } = useShop();
+  const options = sizeOptions(product);
   return (
     <article className="product-card">
       <button
@@ -21,34 +22,68 @@ export default function ProductCard({ product, onDetails }) {
           loading="lazy"
         />
         {product.is_featured && (
-          <span className="product-label">HOUSE FAVORITE</span>
+          <span className="product-label">
+            <span>✦</span> HOUSE FAVORITE
+          </span>
         )}
+        <span className="product-peek">
+          <ArrowUpRight size={18} />
+        </span>
       </button>
-      <div className="product-meta">
-        <span>{product.category_name}</span>
-        <span>CRAFTED WITH CARE</span>
-      </div>
-      <button className="product-title" onClick={() => onDetails(product)}>
-        {product.name}
-      </button>
-      <p>{product.description}</p>
-      <div className="product-bottom">
-        <strong>{money(product.price)}</strong>
-        <button
-          className="add-button"
-          onClick={() => add(product)}
-          disabled={!product.is_available}
-          aria-label={`Add ${product.name} to cart`}
-        >
-          {product.is_available ? <Plus size={19} /> : "Sold out"}
+      <div className="product-content">
+        <div className="product-meta">
+          <span>{product.category_name}</span>
+          {options.length > 0 && <span className="size-hint">S / M / L</span>}
+        </div>
+        <button className="product-title" onClick={() => onDetails(product)}>
+          {product.name}
         </button>
+        <p>{product.description}</p>
+        <div className="product-bottom">
+          <div className="price-block">
+            {options.length > 0 && <small>STARTING AT</small>}
+            <strong>{money(product.price)}</strong>
+          </div>
+          <button
+            className="add-button"
+            onClick={() => (options.length ? onDetails(product) : add(product))}
+            disabled={!product.is_available}
+            aria-label={
+              options.length
+                ? `Choose size for ${product.name}`
+                : `Add ${product.name} to cart`
+            }
+          >
+            {product.is_available ? (
+              <>
+                <span>{options.length ? "Choose size" : "Add to bag"}</span>
+                <Plus size={16} />
+              </>
+            ) : (
+              "Sold out"
+            )}
+          </button>
+        </div>
       </div>
     </article>
   );
 }
 export function ProductDetail({ product, onClose }) {
   const { add } = useShop();
+  const options = sizeOptions(product);
+  const [size, setSize] = useState(options[0]?.name || "Regular");
+  const [adding, setAdding] = useState(false);
+  const price = options.find((o) => o.name === size)?.price ?? product.price;
   const dialog = useRef(null);
+  async function addSelected() {
+    if (adding) return;
+    setAdding(true);
+    try {
+      if (await add(product, size)) onClose();
+    } finally {
+      setAdding(false);
+    }
+  }
   useEffect(() => {
     const previous = document.activeElement;
     const overflow = document.body.style.overflow;
@@ -108,13 +143,53 @@ export function ProductDetail({ product, onClose }) {
           <p className="eyebrow">{product.category_name}</p>
           <h2>{product.name}</h2>
           <p>{product.description}</p>
-          <strong>{money(product.price)}</strong>
+          {options.length > 0 && (
+            <fieldset className="size-picker">
+              <legend>
+                Make it your size <span>Choose one</span>
+              </legend>
+              <div className="size-options">
+                {options.map((option, index) => (
+                  <label
+                    key={option.name}
+                    className={
+                      size === option.name
+                        ? "size-option selected"
+                        : "size-option"
+                    }
+                  >
+                    <input
+                      type="radio"
+                      name="drink-size"
+                      value={option.name}
+                      checked={size === option.name}
+                      onChange={() => setSize(option.name)}
+                    />
+                    <Coffee size={22 + index * 4} strokeWidth={1.3} />
+                    <strong>{option.name}</strong>
+                    <span>{money(option.price)}</span>
+                    {size === option.name && (
+                      <Check className="size-check" size={12} />
+                    )}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          )}
+          <div className="detail-total">
+            <span>Your cup, your way</span>
+            <strong>{money(price)}</strong>
+          </div>
           <button
             className="button"
-            disabled={!product.is_available}
-            onClick={() => add(product)}
+            disabled={!product.is_available || adding}
+            onClick={addSelected}
           >
-            {product.is_available ? "Add to cart" : "Currently unavailable"}{" "}
+            {adding
+              ? "Adding…"
+              : product.is_available
+                ? `Add to bag · ${money(price)}`
+                : "Currently unavailable"}{" "}
             <Plus size={17} />
           </button>
         </div>

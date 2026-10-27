@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, useNavigate, useLocation } from "react-router-dom";
+import { BrandMark } from "../components/Brand";
 import { Coffee, ArrowRight } from "lucide-react";
 import { useShop } from "../context/ShopContext";
 import { api, message } from "../services/api";
@@ -44,7 +45,7 @@ export function Auth() {
   return (
     <section className="auth-section">
       <div className="auth-card">
-        <Coffee size={35} />
+        <BrandMark className="auth-logo" />
         <p className="eyebrow">YOUR OWN LITTLE HAVEN</p>
         <h1>{register ? "Join the table." : "Welcome back."}</h1>
         <p>
@@ -74,12 +75,12 @@ export function Auth() {
               type="password"
               name="password"
               required
-              minLength={register ? 10 : 1}
-              maxLength={72}
+              minLength={register ? 8 : 1}
+              maxLength={register ? 15 : 72}
               autoComplete={register ? "new-password" : "current-password"}
             />
           </label>
-          {register && <small>Use 10–72 characters for your password.</small>}
+          {register && <small>Use 8–15 characters for your password.</small>}
           {error && (
             <p className="error" role="alert">
               {error}
@@ -158,6 +159,7 @@ export function Account() {
           {o.items.map((i) => (
             <p key={i.id}>
               {i.quantity} × {i.product_name}
+              {i.size && i.size !== "Regular" ? ` · ${i.size}` : ""}
               <span className="float-right">
                 {money(i.unit_price * i.quantity)}
               </span>

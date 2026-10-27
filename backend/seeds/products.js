@@ -18,7 +18,7 @@ export async function seed(pool) {
       );
     for (const p of sampleProducts)
       await client.query(
-        "INSERT INTO products(id,category_id,name,description,price,image_url,is_featured,is_available) SELECT $1,c.id,$2,$3,$4,$5,$6,true FROM categories c WHERE c.slug=$7 ON CONFLICT(id) DO NOTHING",
+        "INSERT INTO products(id,category_id,name,description,price,image_url,is_featured,is_available,size_options) SELECT $1,c.id,$2,$3,$4,$5,$6,true,$8::jsonb FROM categories c WHERE c.slug=$7 ON CONFLICT(id) DO NOTHING",
         [
           p.id,
           p.name,
@@ -27,6 +27,7 @@ export async function seed(pool) {
           p.image_url,
           p.is_featured,
           p.category_name.toLowerCase().replaceAll(" ", "-"),
+          JSON.stringify(p.size_options),
         ],
       );
     await client.query("COMMIT");

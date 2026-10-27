@@ -47,7 +47,10 @@ export function Cart() {
                 />
                 <div>
                   <h3>{i.name}</h3>
-                  <p>{money(i.price)}</p>
+                  <p>
+                    <span className="cart-size">{i.size || "Regular"}</span>{" "}
+                    {i.is_available ? money(i.price) : "Currently unavailable"}
+                  </p>
                   <div className="quantity">
                     <button
                       aria-label={`Decrease ${i.name}`}
@@ -82,9 +85,13 @@ export function Cart() {
               <strong>{money(total)}</strong>
             </div>
             <p>Pickup or dine-in. Pay at Counter.</p>
-            <Link to="/checkout" className="button">
-              Checkout <ArrowRight size={16} />
-            </Link>
+            {cart.some((i) => !i.is_available) ? (
+              <p className="error">Remove unavailable items before checkout.</p>
+            ) : (
+              <Link to="/checkout" className="button">
+                Checkout <ArrowRight size={16} />
+              </Link>
+            )}
             <small>Final prices are confirmed when you place your order.</small>
           </aside>
         </div>
@@ -114,6 +121,16 @@ export function Checkout() {
       setBusy(false);
     }
   }
+  if (cart.some((i) => !i.is_available))
+    return (
+      <section className="empty-state">
+        <h1>Let’s freshen up your bag.</h1>
+        <p>A product or size is no longer available.</p>
+        <Link className="button" to="/cart">
+          Review bag
+        </Link>
+      </section>
+    );
   if (!cart.length)
     return (
       <section className="empty-state">
@@ -183,6 +200,7 @@ export function Checkout() {
             <p className="row-between" key={i.id}>
               <span>
                 {i.quantity} × {i.name}
+                {i.size && i.size !== "Regular" ? ` · ${i.size}` : ""}
               </span>
               <strong>{money(i.quantity * i.price)}</strong>
             </p>
@@ -229,6 +247,7 @@ export function Confirmation() {
             {order.items.map((i) => (
               <p key={i.id}>
                 {i.quantity} × {i.product_name}
+                {i.size && i.size !== "Regular" ? ` · ${i.size}` : ""}
               </p>
             ))}
             <strong>{money(order.total_amount)}</strong>

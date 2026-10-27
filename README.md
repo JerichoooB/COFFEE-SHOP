@@ -35,7 +35,7 @@ npm run db:seed
 npm run dev
 ```
 
-Migrations are transaction-based and recorded in `schema_migrations`, with an advisory lock to serialize migration runners. Seeds are repeatable and preserve existing catalog records. No administrative account is seeded. Register an account through the website, then promote that existing account:
+Migrations are recorded in `schema_migrations` and run in one transaction with a transaction-scoped advisory lock, compatible with Neon pooling. Concurrent deployment builds serialize schema changes. Seeds are repeatable and preserve existing catalog records. No administrative account is seeded. Register an account through the website, then promote that existing account:
 
 ```sh
 npm run admin -w backend -- YOUR_ACCOUNT_EMAIL
@@ -110,4 +110,19 @@ Leave `VITE_API_URL` unset (the default `/api` keeps cookies and API requests on
 
 Commit and push the project to the connected production branch (usually `main`), then inspect **Deployments** in Vercel. Changing environment variables requires a new deployment. A configured domain alone does not create a deployment. If automatic deployments are disabled, choose **Create Deployment** for the connected branch in Vercel, or deploy from an authenticated CLI with `vercel --prod`.
 
-Run `npm run db:migrate` and `npm run db:seed` once using an environment that securely contains the target Neon URL, before taking real orders. These are intentionally not part of every frontend build. Confirm `/api/health` returns HTTP 200 and `database: connected`, then test account creation and ordering on the deployed domain. Promote an existing owner account with the documented admin script. Vercel credentials and live Neon access are required to verify an actual production deployment; local tests do not establish deployment success.
+Vercel now runs `npm run db:migrate && npm run db:seed && npm run build` automatically. Set `DATABASE_URL` in Vercel **before** deploying: the deployment build creates missing tables, applies new migrations once, and seeds the catalog without overwriting existing product records. A missing or inaccessible database fails the build instead of deploying an unusable API. If you previously enabled a Build Command override in Vercel settings, disable it so `vercel.json` is used. `npm run build` alone remains a frontend-only build for local development. Confirm `/api/health` returns HTTP 200 and `database: connected`, then test account creation and ordering on the deployed domain. Promote an existing owner account with the documented admin script. Vercel credentials and live Neon access are required to verify an actual production deployment; local tests do not establish deployment success.
+
+## Drink sizes and updated interface
+
+Drinks offer Small, Medium, and Large. Starting seed prices are the base price, +₱20, and +₱40 respectively; admins can edit all three prices in Products. New products are single-size until “Offer Small, Medium, and Large” is enabled. Pastries/desserts remain Regular. The customer chooses a size in the product dialog; different sizes occupy separate cart lines, appear through checkout/history/admin, and are priced again from the current database catalog during checkout. A removed size cannot be purchased. Migration `002_drink_sizes.sql` preserves historic order prices and labels, and converts existing drink carts to Small.
+
+The UI includes the custom SVG Brew Haven mark (`frontend/public/logo.svg`), a matching favicon, refined menu cards, price sorting, size controls, mobile filters, and refreshed account/cart panels. Registration requires 8–15 characters; login still accepts existing longer passwords.
+
+### Browser regression tests
+
+```sh
+npx playwright install chromium
+npm run test:e2e
+```
+
+For an installed Chromium binary, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium`. Browser tests cover desktop/mobile layouts, menu filtering/sorting, drink sizes, cart/checkout, signup limits, and admin price editing with an explicitly mocked API. They do not establish live Neon readiness.

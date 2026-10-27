@@ -60,6 +60,14 @@ export default function Admin() {
       price: Number(f.price),
       is_available: f.is_available === "on",
       is_featured: f.is_featured === "on",
+      size_options:
+        f.offer_sizes === "on"
+          ? [
+              { name: "Small", price: Number(f.price) },
+              { name: "Medium", price: Number(f.medium_price) },
+              { name: "Large", price: Number(f.large_price) },
+            ]
+          : [],
     };
     await action(async () => {
       if (editing.id) await api.put(`/products/${editing.id}`, payload);
@@ -185,7 +193,10 @@ export default function Admin() {
                 </p>
                 {o.items.map((i) => (
                   <p key={i.id}>
-                    {i.quantity} × {i.product_name} — {money(i.unit_price)}
+                    {i.quantity} × {i.product_name}
+                    {i.size && i.size !== "Regular"
+                      ? ` · ${i.size}`
+                      : ""} — {money(i.unit_price)}
                   </p>
                 ))}
                 {o.notes && <p>Notes: {o.notes}</p>}
@@ -260,6 +271,48 @@ export default function Admin() {
                   defaultValue={editing.image_url}
                 />
               </label>
+              <fieldset className="admin-sizes">
+                <legend>Drink sizes</legend>
+                <label className="checkbox">
+                  <input
+                    type="checkbox"
+                    name="offer_sizes"
+                    checked={Boolean(editing.offer_sizes)}
+                    onChange={(e) =>
+                      setEditing({ ...editing, offer_sizes: e.target.checked })
+                    }
+                  />{" "}
+                  Offer Small, Medium, and Large
+                </label>
+                {editing.offer_sizes && (
+                  <>
+                    <p>
+                      Small uses the base price above. Set the full price for
+                      each larger size.
+                    </p>
+                    <div className="size-price-fields">
+                      {["Medium", "Large"].map((name, index) => (
+                        <label key={name}>
+                          {name} price (₱)
+                          <input
+                            name={`${name.toLowerCase()}_price`}
+                            type="number"
+                            min="0.01"
+                            max="100000"
+                            step="0.01"
+                            required
+                            defaultValue={
+                              editing.size_options?.find((o) => o.name === name)
+                                ?.price ??
+                              (Number(editing.price) || 0) + (index + 1) * 20
+                            }
+                          />
+                        </label>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </fieldset>
               <label className="checkbox">
                 <input
                   type="checkbox"
@@ -310,7 +363,16 @@ export default function Admin() {
                   </small>
                 </span>
                 <span>{money(p.price)}</span>
-                <button onClick={() => setEditing(p)}>Edit</button>
+                <button
+                  onClick={() =>
+                    setEditing({
+                      ...p,
+                      offer_sizes: Boolean(p.size_options?.length),
+                    })
+                  }
+                >
+                  Edit
+                </button>
                 <button
                   disabled={busy}
                   onClick={() => {
@@ -435,6 +497,7 @@ export default function Admin() {
                   {o.items.map((i) => (
                     <p key={i.id}>
                       {i.quantity} × {i.product_name}
+                      {i.size && i.size !== "Regular" ? ` · ${i.size}` : ""}
                     </p>
                   ))}
                 </div>

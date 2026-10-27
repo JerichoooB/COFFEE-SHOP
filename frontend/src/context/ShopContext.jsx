@@ -47,15 +47,21 @@ export function ShopProvider({ children }) {
       setLoading(false);
     }
   }
-  async function add(product) {
+  async function add(product, size = "Regular") {
     if (!user) {
       notify("Please sign in to save your cart and place an order.");
       return false;
     }
     try {
-      await api.post("/cart/items", { product_id: product.id, quantity: 1 });
+      await api.post("/cart/items", {
+        product_id: product.id,
+        quantity: 1,
+        size,
+      });
       setCart((await api.get("/cart")).data);
-      notify(`${product.name} added to your cart`);
+      notify(
+        `${product.name}${size !== "Regular" ? ` · ${size}` : ""} added to your cart`,
+      );
       return true;
     } catch (e) {
       notify(message(e));

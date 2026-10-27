@@ -11,7 +11,8 @@
     "build": "npm run build -w frontend",
     "test": "npm test -w backend",
     "db:migrate": "npm run migrate -w backend",
-    "db:seed": "npm run seed -w backend"
+    "db:seed": "npm run seed -w backend",
+    "test:e2e": "npm run test:e2e -w frontend"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"
