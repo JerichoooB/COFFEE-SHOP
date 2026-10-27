@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { api, message } from "../services/api";
+import { api, message, parseUser, parseList } from "../services/api";
 import { sampleProducts } from "../services/catalog";
 const ShopContext = createContext(null);
 export function ShopProvider({ children }) {
@@ -13,7 +13,7 @@ export function ShopProvider({ children }) {
   useEffect(() => {
     api
       .get("/auth/me")
-      .then((r) => setUser(r.data))
+      .then((r) => setUser(parseUser(r.data)))
       .catch(() => {})
       .finally(() => setAuthLoading(false));
     reloadProducts();
@@ -22,7 +22,7 @@ export function ShopProvider({ children }) {
     if (user)
       api
         .get("/cart")
-        .then((r) => setCart(r.data))
+        .then((r) => setCart(parseList(r.data, "cart")))
         .catch((e) => notify(message(e)));
     else setCart([]);
   }, [user]);
@@ -38,7 +38,7 @@ export function ShopProvider({ children }) {
     setLoading(true);
     try {
       const r = await api.get("/products");
-      setProducts(r.data);
+      setProducts(parseList(r.data, "menu"));
       setDemo(false);
     } catch {
       setProducts(sampleProducts);
@@ -58,7 +58,7 @@ export function ShopProvider({ children }) {
         quantity: 1,
         size,
       });
-      setCart((await api.get("/cart")).data);
+      setCart(parseList((await api.get("/cart")).data, "cart"));
       notify(
         `${product.name}${size !== "Regular" ? ` · ${size}` : ""} added to your cart`,
       );
@@ -72,7 +72,7 @@ export function ShopProvider({ children }) {
     try {
       if (value <= 0) await api.delete(`/cart/items/${item.id}`);
       else await api.patch(`/cart/items/${item.id}`, { quantity: value });
-      setCart((await api.get("/cart")).data);
+      setCart(parseList((await api.get("/cart")).data, "cart"));
     } catch (e) {
       notify(message(e));
     }

@@ -5,13 +5,17 @@
   "buildCommand": "npm run db:migrate && npm run db:seed && npm run build",
   "outputDirectory": "frontend/dist",
   "functions": {
-    "api/[...path].js": {
+    "api/index.js": {
       "maxDuration": 30
     }
   },
   "rewrites": [
     {
-      "source": "/((?!api(?:/|$)).*)",
+      "source": "/api/:path*",
+      "destination": "/api"
+    },
+    {
+      "source": "/:path*",
       "destination": "/index.html"
     }
   ]

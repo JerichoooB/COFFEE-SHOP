@@ -97,7 +97,7 @@ For production, use HTTPS, a persistent JWT secret, a managed Node process, rest
 
 ## Deploy the full application to Vercel
 
-Import this GitHub repository into Vercel. Use the repository root as **Root Directory** (leave it blank), not `frontend/`. The included `vercel.json` builds the Vite frontend into `frontend/dist`, deploys `api/[...path].js` as the Express serverless handler, and sends frontend routes to the SPA. The function imports the application without starting an HTTP listener.
+Import this GitHub repository into Vercel. Use the repository root as **Root Directory** (leave it blank), not `frontend/`. The included `vercel.json` builds the Vite frontend into `frontend/dist`, deploys `api/index.js` as the Express serverless handler, and sends frontend routes to the SPA. The function imports the application without starting an HTTP listener.
 
 In Vercel project settings, add these variables to **Production** before deploying:
 
@@ -128,3 +128,5 @@ npm run test:e2e
 For an installed Chromium binary, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium`. Browser tests cover desktop/mobile layouts, menu filtering/sorting, drink sizes, cart/checkout, signup limits, and admin price editing with an explicitly mocked API. They do not establish live Neon readiness.
 
 The PostgreSQL pool explicitly uses `sslmode=verify-full` (with all other connection parameters preserved), retaining the certificate and hostname verification that pg currently applies to `require`. You do not need to change your Neon connection string to silence pg’s SSL compatibility warning.
+
+Vercel explicitly rewrites `/api/:path*` to the single `api/index.js` function before the frontend SPA fallback. This is required for nested routes such as `/api/auth/login` and `/api/orders/my-orders`. API responses are checked before entering React state; malformed responses show an error instead of turning the account page blank.

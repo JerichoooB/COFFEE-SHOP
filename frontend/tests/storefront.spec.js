@@ -227,3 +227,125 @@ test("admin edits the complete drink size price list", async ({ page }) => {
     { name: "Large", price: 225 },
   ]);
 });
+
+for (const register of [false, true]) {
+  test(`${register ? "signup" : "login"} lands on account without browser errors`, async ({
+    page,
+  }) => {
+    await mockShop(page);
+    const errors = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    await page.route("**/api/auth/login", (route) =>
+      route.fulfill({
+        json: {
+          id: "user",
+          full_name: "Coffee Friend",
+          email: "friend@example.com",
+          role: "customer",
+        },
+      }),
+    );
+    await page.route("**/api/auth/register", (route) =>
+      route.fulfill({
+        json: {
+          id: "user",
+          full_name: "Coffee Friend",
+          email: "friend@example.com",
+          role: "customer",
+        },
+      }),
+    );
+    await page.route("**/api/orders/my-orders", (route) =>
+      route.fulfill({ json: [] }),
+    );
+    await page.goto("/login");
+    if (register) {
+      await page.getByRole("button", { name: "Join us", exact: true }).click();
+      await page.getByLabel("Full name").fill("Coffee Friend");
+    }
+    await page
+      .getByLabel("Email address", { exact: true })
+      .fill("friend@example.com");
+    await page.getByLabel("Password", { exact: true }).fill("testpassword");
+    await page
+      .getByRole("button", {
+        name: register ? "Create account" : "Sign in",
+        exact: true,
+      })
+      .click();
+    await expect(
+      page.getByRole("heading", { name: "Hello, Coffee." }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Your first cup is calling." }),
+    ).toBeVisible();
+    expect(errors).toEqual([]);
+  });
+}
+
+test("HTML auth responses stay on the form and display an error", async ({
+  page,
+}) => {
+  await mockShop(page);
+  const errors = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.route("**/api/auth/login", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "text/html",
+      body: "<!doctype html><html><body>Wrong route</body></html>",
+    }),
+  );
+  await page.goto("/login");
+  await page
+    .getByLabel("Email address", { exact: true })
+    .fill("friend@example.com");
+  await page.getByLabel("Password", { exact: true }).fill("testpassword");
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await expect(page.getByRole("alert")).toContainText("unexpected page");
+  await expect(
+    page.getByRole("heading", { name: "Welcome back." }),
+  ).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test("malformed profile and order responses show errors without blanking the page", async ({
+  page,
+}) => {
+  await mockShop(page);
+  const errors = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.route("**/api/auth/login", (route) =>
+    route.fulfill({ json: { id: "user", email: "friend@example.com" } }),
+  );
+  await page.goto("/login");
+  await page
+    .getByLabel("Email address", { exact: true })
+    .fill("friend@example.com");
+  await page.getByLabel("Password", { exact: true }).fill("testpassword");
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await expect(page.getByRole("alert")).toContainText(
+    "account could not be loaded",
+  );
+  await page.route("**/api/auth/me", (route) =>
+    route.fulfill({
+      json: {
+        id: "user",
+        full_name: "Coffee Friend",
+        email: "friend@example.com",
+        role: "customer",
+      },
+    }),
+  );
+  await page.route("**/api/orders/my-orders", (route) =>
+    route.fulfill({ json: { unexpected: "object" } }),
+  );
+  await page.goto("/account");
+  await expect(
+    page.getByRole("heading", { name: "Hello, Coffee." }),
+  ).toBeVisible();
+  await expect(page.locator(".error")).toContainText(
+    "could not load your orders",
+  );
+  expect(errors).toEqual([]);
+});

@@ -3,7 +3,7 @@ import { Link, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { BrandMark } from "../components/Brand";
 import { Coffee, ArrowRight } from "lucide-react";
 import { useShop } from "../context/ShopContext";
-import { api, message } from "../services/api";
+import { api, message, parseUser, parseList } from "../services/api";
 import { money } from "../services/catalog";
 export function Protected({ children, admin = false }) {
   const { user, authLoading } = useShop(),
@@ -33,7 +33,7 @@ export function Auth() {
         `/auth/${register ? "register" : "login"}`,
         data,
       );
-      setUser(r.data);
+      setUser(parseUser(r.data));
       notify(register ? "Welcome to Brew Haven!" : "Welcome back.");
       navigate(location.state?.from || "/account", { replace: true });
     } catch (e) {
@@ -114,7 +114,16 @@ export function Account() {
   useEffect(() => {
     api
       .get("/orders/my-orders")
-      .then((r) => setOrders(r.data))
+      .then((r) => {
+        const orders = parseList(r.data, "orders");
+        if (
+          orders.some(
+            (o) => !o || typeof o.id !== "string" || !Array.isArray(o.items),
+          )
+        )
+          throw new Error("Invalid order history");
+        setOrders(orders);
+      })
       .catch((e) => setError(message(e)));
   }, []);
   return (
