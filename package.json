@@ -1,0 +1,19 @@
+{
+  "name": "brew-haven",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web -c yellow,green \"npm run dev -w backend\" \"npm run dev -w frontend\"",
+    "build": "npm run build -w frontend",
+    "test": "npm test -w backend",
+    "db:migrate": "npm run migrate -w backend",
+    "db:seed": "npm run seed -w backend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "@brewhaven/backend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js",
+    "migrate": "node scripts/database.js migrate",
+    "seed": "node scripts/database.js seed",
+    "admin": "node scripts/admin.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "pg": "^8.16.3",
+    "jsonwebtoken": "^9.0.2",
+    "bcrypt": "^6.0.0",
+    "zod": "^4.1.12",
+    "dotenv": "^17.2.3",
+    "cors": "^2.8.5",
+    "helmet": "^8.1.0",
+    "express-rate-limit": "^8.1.0",
+    "cookie-parser": "^1.4.7"
+  },
+  "devDependencies": {
+    "supertest": "^7.1.4"
+  }
+}
